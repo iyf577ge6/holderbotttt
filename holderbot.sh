@@ -4,7 +4,7 @@ cd
 
 clear && echo -e "\n\n\n      Start installing the Holderbot!     \n\n\n\n\n\n" && sleep 3
 
-clear && echo -e "\n      Checking update and upgrade packages....\n\n" && yes '-' | head -n 50 | tr -d '\n\n' && echo && sleep 1 && apt update && apt upgrade -y || { echo -e "\n\nFailed to update and upgrade packages. Exiting...\n\n"; exit 1; }
+clear && echo -e "\n      Checking update and upgrade packages....\n\n" && yes '-' | head -n 50 | tr -d '\n\n' && echo && sleep 1 || { echo -e "\n\nFailed to update and upgrade packages. Exiting...\n\n"; exit 1; }
 
 clear && echo -e "\n      Checking required packages....\n\n" && yes '-' | head -n 50 | tr -d '\n\n' && echo && sleep 1 && apt install python3 python3-pip git python3-dev python3-venv build-essential libsqlite3-dev -y || { echo -e "\n\nFailed to install required packages. Exiting...\n\n"; exit 1; }
 
