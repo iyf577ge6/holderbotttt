@@ -43,7 +43,7 @@ pip install -U pyrogram tgcrypto requests Pillow qrcode[pil] persiantools pytz p
 sudo apt-get install -y sqlite3
 #defining variables
 name=""
-chatid=""
+chatids=()
 token=""
 user=""
 password=""
@@ -65,11 +65,13 @@ function getinfo() {
     done
     
 
-    chatid=""
-    while [[ ! "$chatid" =~ ^[0-9]+$ ]]; do
-        read -p "Please enter telegram chatid : " chatid
-        if [[ ! "$chatid" =~ ^[0-9]+$ ]]; then
-            echo "Chat ID must be a number. Please enter a valid number."
+    chatids=()
+    while [ ${#chatids[@]} -eq 0 ]; do
+        read -p "Please enter telegram chat id(s) (space-separated): " chatids_input
+        if [[ $chatids_input =~ ^[0-9]+([[:space:]][0-9]+)*$ ]]; then
+            read -a chatids <<< "$chatids_input"
+        else
+            echo "Chat IDs must be numbers separated by spaces. Please enter valid IDs."
         fi
     done
 
@@ -129,7 +131,7 @@ function getinfo() {
 function checkinfo() {
     clear && echo -e "\\n      Checking information...      \\n\\n"
     echo "Name: $name"
-    echo "Telegram Chat ID: $chatid"
+    echo "Telegram Chat ID(s): ${chatids[*]}"
     echo "Telegram Bot Token: $token"
     echo "Panel Sudo Username: $user"
     echo "Panel Sudo Password: $password"
@@ -160,14 +162,12 @@ done
 clear && echo -e "\n      Creating database...      \n\n" && yes '-' | head -n 50 | tr -d '\n\n' && echo
 rm holder.db || true
 while true; do
-    sqlite3 holder.db <<EOF
+    SQL=$(cat <<EOF
 CREATE TABLE IF NOT EXISTS bot
-    (chatid INTEGER PRIMARY KEY,
-     token TEXT);
+    (token TEXT);
 
 CREATE TABLE IF NOT EXISTS monitoring
-    (chatid INTEGER PRIMARY KEY,
-     status TEXT,
+    (status TEXT,
      check_normal INTEGER,
      check_error INTEGER);
 
@@ -188,14 +188,18 @@ CREATE TABLE IF NOT EXISTS users
      step TEXT);
 
 CREATE TABLE IF NOT EXISTS messages
-    (chatid INTEGER PRIMARY KEY,
-    status TEXT);
+    (status TEXT);
 
-INSERT INTO messages (chatid, status) VALUES ('$chatid', 'off');
-INSERT INTO users (chatid, role, name, username, password, domain, step) VALUES ('$chatid', 'boss', '$name', '$user', '$password', '$domain', 'None');
-INSERT INTO monitoring (chatid, status, check_normal, check_error) VALUES ('$chatid', 'on', '10', '100');
-INSERT INTO bot (chatid, token) VALUES ('$chatid', '$token');
+INSERT INTO messages (status) VALUES ('off');
+INSERT INTO monitoring (status, check_normal, check_error) VALUES ('on', '10', '100');
+INSERT INTO bot (token) VALUES ('$token');
 EOF
+    )
+    sqlite3 holder.db <<< "$SQL"
+
+    for cid in "${chatids[@]}"; do
+        sqlite3 holder.db "INSERT INTO users (chatid, role, name, username, password, domain, step) VALUES ('$cid', 'boss', '$name', '$user', '$password', '$domain', 'None');"
+    done
 
     if [[ $? -eq 0 ]]; then
         echo "Database setup successful."

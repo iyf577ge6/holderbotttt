@@ -54,7 +54,7 @@ Holder Bot is a quick and simple bot designed to address the issue of the lack o
 
 To use the holderbot , you will need the following information:
 1. **Name:** You can enter any name you prefer.
-2. **Chat ID:** You need to obtain this from the [@chatIDrobot](https://t.me/chatIDrobot).
+2. **Chat ID(s):** You need to obtain this from the [@chatIDrobot](https://t.me/chatIDrobot). You can provide multiple numeric IDs separated by spaces so each account can control the bot.
 3. **Bot Token:** You need to obtain this from the [@botfather](https://t.me/BotFather).
 4. **Panel Username:** Enter your panel sudo admin username.
 5. **Panel Password:** Enter your panel sudo admin password.
@@ -78,6 +78,24 @@ sudo bash -c "$(curl -sL https://github.com/erfjab/holderbot/raw/main/restart.sh
 ```
 sudo bash -c "$(curl -sL https://github.com/erfjab/holderbot/raw/main/uninstall.sh)"
 ```
+
+### Managing admin IDs after installation
+
+If you need to add another Telegram admin later, run:
+
+```
+sqlite3 holder.db "INSERT INTO users (chatid, role, name, username, password, domain, step) SELECT NEW_CHAT_ID, role, name, username, password, domain, 'None' FROM users WHERE role='boss' LIMIT 1;"
+```
+
+Replace `NEW_CHAT_ID` with the numeric ID you want to add.
+
+To remove an admin, run:
+
+```
+sqlite3 holder.db "DELETE FROM users WHERE chatid=CHAT_ID;"
+```
+
+Replace `CHAT_ID` with the ID you wish to remove.
 
 # How to use the bot? (video) # 
 

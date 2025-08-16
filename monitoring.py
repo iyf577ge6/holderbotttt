@@ -17,8 +17,9 @@ with app :
 
     while True :
         try :
-            BOSS_CHATID , NODE_STATUS , CHECK_NORMAL , CHECK_ERROR = DEF_MONITORING_DATA ()
-            PANEL_USER, PANEL_PASS, PANEL_DOMAIN = DEF_IMPORT_DATA (BOSS_CHATID)
+            BOSS_CHATIDS = DEF_BOSS_CHATIDS()
+            NODE_STATUS , CHECK_NORMAL , CHECK_ERROR = DEF_MONITORING_DATA ()
+            PANEL_USER, PANEL_PASS, PANEL_DOMAIN = DEF_IMPORT_DATA (BOSS_CHATIDS[0])
             if NODE_STATUS == "on" :
                 
                 NODE_HAVE_A_PROBLEM = False
@@ -36,14 +37,17 @@ with app :
                             TEXT = f"<b>❗ (Checker) boss of one of the servers crashed. To prevent spamming, server monitoring has been stopped and will be restarted after <code>{CHECK_ERROR}</code> seconds.</b>"
                             TEXT += f"\n\n<b>NODE NAME : </b><code>{NODE.get('name')}</code>\n<b>NODE ID : </b><code>{NODE.get('id')}</code>\n<b>NODE IP : </b><code>{NODE.get('address')}</code>\n<b>ERROR MESSAGE : </b><code>{NODE.get('message')}</code>"
                             NODE_HAVE_A_PROBLEM = True
-                            app.send_message(chat_id=BOSS_CHATID , text=TEXT , parse_mode=enums.ParseMode.HTML)
+                            for CHAT_ID in BOSS_CHATIDS:
+                                app.send_message(chat_id=CHAT_ID , text=TEXT , parse_mode=enums.ParseMode.HTML)
 
                             url = f"{PANEL_DOMAIN}/api/{NODE.get('id')}/reconnect"
                             RESPONCE = requests.get(url=URL , headers=PANEL_TOKEN , verify=False)
                             if RESPONCE.status_code == 200 :
-                                app.send_message(chat_id=BOSS_CHATID , text='<b>(Checker) ✅ Automatic reconnection!</b>' , parse_mode=enums.ParseMode.HTML)
+                                for CHAT_ID in BOSS_CHATIDS:
+                                    app.send_message(chat_id=CHAT_ID , text='<b>(Checker) ✅ Automatic reconnection!</b>' , parse_mode=enums.ParseMode.HTML)
                             else:
-                                app.send_message(chat_id=BOSS_CHATID , text='<b>(Checker) ❌ Automatic reconnection!</b>' , parse_mode=enums.ParseMode.HTML)
+                                for CHAT_ID in BOSS_CHATIDS:
+                                    app.send_message(chat_id=CHAT_ID , text='<b>(Checker) ❌ Automatic reconnection!</b>' , parse_mode=enums.ParseMode.HTML)
                                                        
 
                     if NODE_HAVE_A_PROBLEM is True :
@@ -55,6 +59,7 @@ with app :
                 time.sleep(60)
 
         except Exception as e :
-            app.send_message(chat_id=BOSS_CHATID , text=f"<b>❌ (Checker) Monitoring Error :</b>\n<pre>{str(e)}</pre>" , parse_mode=enums.ParseMode.HTML)
+            for CHAT_ID in BOSS_CHATIDS:
+                app.send_message(chat_id=CHAT_ID , text=f"<b>❌ (Checker) Monitoring Error :</b>\n<pre>{str(e)}</pre>" , parse_mode=enums.ParseMode.HTML)
             time.sleep(60)
             pass

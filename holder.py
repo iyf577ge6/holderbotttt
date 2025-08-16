@@ -86,7 +86,7 @@ async def holderbot(client: Client, message: Message) :
                 UPDATE_STEP = DEF_UPDATE_STEP(MESSAGE_CHATID,"nodes | wait to select node")
 
             elif MESSAGE_TEXT == "🎛 Monitoring" :
-                BOSS_CHATID , NODE_STATUS , CHECK_NORMAL , CHECK_ERROR = DEF_MONITORING_DATA()
+                NODE_STATUS , CHECK_NORMAL , CHECK_ERROR = DEF_MONITORING_DATA()
                 if NODE_STATUS == "off" :
                     TEXT = f"<b>🔴 Monitoring is <code>off</code></b>"
                     KEYBOARD_MONITORING = KEYBOARD_OFF_MONITORING
@@ -107,7 +107,7 @@ async def holderbot(client: Client, message: Message) :
                 UPDATE_STEP = DEF_UPDATE_STEP(MESSAGE_CHATID,"create | wait to select command")
 
             elif MESSAGE_TEXT == "🎖 Notice" :
-                await client.send_message(chat_id=MESSAGE_CHATID , text=f"<b>Welcome to the Messages section! This feature has been added with sponsorship the <a href='https://t.me/GrayServer'>Gray</a> collection.❤️ You can visit the Gray collection channel and bot for purchasing servers on an hourly and monthly basis, with a wide variety of locations and specifications, accompanied by clean IPs at the lowest prices.\n\nTo utilize this feature, you first need to create an inbound according to the tutorial on GitHub Wiki or the Telegram channel tutorial for Holderbot. Then, in the host setting section of that inbound, write down the texts you desire to be displayed to the user upon completion of the configuration update.\n\nYour Messages is <code>{DEF_GET_MESSAGE_STATUS(MESSAGE_CHATID)}</code></b>" , reply_markup=KEYBOARD_MESSAGES , parse_mode=enums.ParseMode.HTML , disable_web_page_preview=True )
+                await client.send_message(chat_id=MESSAGE_CHATID , text=f"<b>Welcome to the Messages section! This feature has been added with sponsorship the <a href='https://t.me/GrayServer'>Gray</a> collection.❤️ You can visit the Gray collection channel and bot for purchasing servers on an hourly and monthly basis, with a wide variety of locations and specifications, accompanied by clean IPs at the lowest prices.\n\nTo utilize this feature, you first need to create an inbound according to the tutorial on GitHub Wiki or the Telegram channel tutorial for Holderbot. Then, in the host setting section of that inbound, write down the texts you desire to be displayed to the user upon completion of the configuration update.\n\nYour Messages is <code>{DEF_GET_MESSAGE_STATUS()}</code></b>" , reply_markup=KEYBOARD_MESSAGES , parse_mode=enums.ParseMode.HTML , disable_web_page_preview=True )
                 UPDATE_STEP = DEF_UPDATE_STEP(MESSAGE_CHATID,"message | wait to select command")
                                 
             else :
@@ -315,11 +315,11 @@ async def holderbot(client: Client, message: Message) :
                 if CHECK_STEP == "monitoring | wait to select command" :
 
                     if MESSAGE_TEXT == "🔴 Disable monitoring" :
-                        CHANGE = DEF_CHANGE_NODE_STATUS(MESSAGE_CHATID,"off")
+                        CHANGE = DEF_CHANGE_NODE_STATUS("off")
                         await client.send_message(chat_id=MESSAGE_CHATID , text="<b>✅ Your Monitoring is disabled.</b>" , reply_markup=KEYBOARD_OFF_MONITORING , parse_mode=enums.ParseMode.HTML , disable_web_page_preview=True )
 
                     elif MESSAGE_TEXT == "🟢 Monitoring activation" :
-                        CHANGE = DEF_CHANGE_NODE_STATUS(MESSAGE_CHATID,"on")
+                        CHANGE = DEF_CHANGE_NODE_STATUS("on")
                         await client.send_message(chat_id=MESSAGE_CHATID , text="<b>✅ Your Monitoring is activated.</b>" , reply_markup=KEYBOARD_ON_MONITORING , parse_mode=enums.ParseMode.HTML , disable_web_page_preview=True )
                     
                     elif MESSAGE_TEXT == "⏱ Normal timer" :
@@ -335,7 +335,7 @@ async def holderbot(client: Client, message: Message) :
                     if CHECK_STEP.startswith("monitoring | timer") :
                         DB_ROW = STEP_SPLIT[3]
                         if len(MESSAGES_SPLIT) == 1 and MESSAGE_TEXT.isnumeric() :
-                            CHANGE = DEF_NODE_STATUS(MESSAGE_CHATID , DB_ROW , MESSAGE_TEXT)
+                            CHANGE = DEF_NODE_STATUS(DB_ROW , MESSAGE_TEXT)
                             await client.send_message(chat_id=MESSAGE_CHATID , text=f"<b>✅ Your {DB_ROW} timer is changed.</b>" , reply_markup=KEYBOARD_ON_MONITORING , parse_mode=enums.ParseMode.HTML , disable_web_page_preview=True )
                             UPDATE_STEP = DEF_UPDATE_STEP(MESSAGE_CHATID,"monitoring | wait to select command")
                 
