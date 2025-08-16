@@ -6,7 +6,7 @@ def DEF_GET_BOT_TOKEN():
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
     cursor.execute('''SELECT token FROM bot''')
-    second_column_value = cursor.fetchone()[0] 
+    second_column_value = cursor.fetchone()[0]
     conn.close()
     return second_column_value
 
@@ -20,6 +20,14 @@ def DEF_CHECK_BOSS(CHATID):
         return True
     else:
         return False
+
+def DEF_BOSS_CHATIDS():
+    conn = sqlite3.connect('holder.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT chatid FROM users WHERE role='boss'")
+    IDS = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return IDS
 
 def DEF_CHECK_STEP(CHATID) :
     conn = sqlite3.connect('holder.db')
@@ -60,22 +68,22 @@ def DEF_PANEL_ACCESS(PANEL_USER, PANEL_PASS, PANEL_DOMAIN) :
 def DEF_MONITORING_DATA():
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
-    cursor.execute('''SELECT * FROM monitoring''')
+    cursor.execute('''SELECT status, check_normal, check_error FROM monitoring''')
     USER_DATA = cursor.fetchone()
     conn.close()
     return USER_DATA
 
-def DEF_CHANGE_NODE_STATUS(CHATID , STATUS) :
+def DEF_CHANGE_NODE_STATUS(STATUS) :
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
-    cursor.execute("UPDATE monitoring SET status = ? WHERE chatid = ?", (STATUS, CHATID))
+    cursor.execute("UPDATE monitoring SET status = ?", (STATUS,))
     conn.commit()
     conn.close()
 
-def DEF_NODE_STATUS(CHATID , ROW , STATUS) :
+def DEF_NODE_STATUS(ROW , STATUS) :
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
-    cursor.execute(f"UPDATE monitoring SET {ROW} = ? WHERE chatid = ?", (STATUS, CHATID))
+    cursor.execute(f"UPDATE monitoring SET {ROW} = ?", (STATUS,))
     conn.commit()
     conn.close()
 
@@ -118,31 +126,23 @@ def DEF_TEMPLATES_DATA_ALL(TEXT):
     conn.close()
     return result
 
-def DEF_MESSAGER_IMPORT_DATA():
+def DEF_MESSAGER_STATUS():
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
-    cursor.execute('''SELECT * FROM messages''')
+    cursor.execute('''SELECT status FROM messages''')
     USER_DATA = cursor.fetchone()
     conn.close()
-    return USER_DATA
+    return USER_DATA[0] if USER_DATA else None
 
-def DEF_GET_MESSAGE_STATUS(CHATID):
-    conn = sqlite3.connect('holder.db')
-    cursor = conn.cursor()
-    cursor.execute('''SELECT status FROM messages WHERE chatid = ?''', (CHATID,))
-    USER_DATA = cursor.fetchone()
-    conn.close()
-    if USER_DATA:
-        return USER_DATA[0]
-    else:
-        return None
+def DEF_GET_MESSAGE_STATUS():
+    return DEF_MESSAGER_STATUS()
 
 def DEF_CHANGE_MESSAGER_STATUS(CHATID):
-    OLD_STATUS = DEF_GET_MESSAGE_STATUS(CHATID)
+    OLD_STATUS = DEF_GET_MESSAGE_STATUS()
     conn = sqlite3.connect('holder.db')
     cursor = conn.cursor()
-    if OLD_STATUS == "on" :    
-        cursor.execute('''UPDATE messages SET status = ? WHERE chatid = ?''', ("off", CHATID))
+    if OLD_STATUS == "on" :
+        cursor.execute('''UPDATE messages SET status = ?''', ("off",))
         conn.commit()
         conn.close()
         TEXT = "<b>✅ Your status is off.</b>"
@@ -162,7 +162,7 @@ def DEF_CHANGE_MESSAGER_STATUS(CHATID):
             else :
                 FOUND = False
             if FOUND :
-                cursor.execute('''UPDATE messages SET status = ? WHERE chatid = ?''', ("on", CHATID))
+                cursor.execute('''UPDATE messages SET status = ?''', ("on",))
                 conn.commit()
                 conn.close()
                 TEXT = "<b>✅ Your status is on.</b>"
